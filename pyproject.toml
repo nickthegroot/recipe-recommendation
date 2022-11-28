@@ -1,0 +1,79 @@
+[tool.poetry]
+name = "recipe_recommendation"
+version = "0.1.0"
+description = "The recommendation engine for home-cooked recipes"
+authors = ["Nick DeGroot <ndegroot@ucsd.edu>"]
+
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pydantic = "^1.10.2"
+python-dotenv = "^0.21.0"
+fastapi = "^0.88.0"
+pandas = "^1.5.2"
+scikit-learn = "^1.1.3"
+
+[tool.poetry.dev-dependencies]
+bandit = "^1.6.2"
+black = "^19.10b0"
+docstr-coverage = "^1.2.0"
+flake8 = "^3.8.3"
+flake8-docstrings = "^1.5.0"
+ipython = "^7.16.1"
+isort = "^5.2.2"
+jupyter = "^1.0.0"
+mypy = "^0.782"
+pytest = "^6.0.1"
+pytest-cov = "^2.10.0"
+pytest-xdist = "^1.34.0"
+tqdm = "^4.48.0"
+uvicorn = "^0.12.2"
+
+[tool.poetry.group.dev.dependencies]
+bandit = "^1.7.4"
+black = "^22.10.0"
+docstr-coverage = "^2.2.0"
+flake8 = "^6.0.0"
+flake8-docstrings = "^1.6.0"
+ipython = "^8.7.0"
+isort = "^5.10.1"
+jupyter = "^1.0.0"
+mypy = "^0.991"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+pytest-xdist = "^3.0.2"
+tqdm = "^4.64.1"
+uvicorn = "^0.20.0"
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+src_paths = ["recipe_recommendation", "tests"]
+
+[tool.black]
+line-length = 120
+target-version = ['py38']
+include = '\.pyi?$'
+exclude = '''
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+)
+'''
+
+[tool.mypy]
+plugins = "pydantic.mypy"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

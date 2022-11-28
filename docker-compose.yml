@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  recipe_recommendation:
+    image: recipe_recommendation:develop
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
