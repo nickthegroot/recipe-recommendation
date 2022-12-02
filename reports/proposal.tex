@@ -1,0 +1,91 @@
+\documentclass{./styles/ucsdreport}
+
+\usepackage{natbib}
+\usepackage[nottoc,numbib]{tocbibind}
+\usepackage{hyperref}
+
+\bibliographystyle{dinat}
+\graphicspath{{./figures/}{./styles}}
+%************************************************************
+
+\def\course{DSC 180B: Data Science Capstone}
+\def\thetitle{Quarter 2 Proposal}
+\def\Headauthor{DeGroot, Nicholas}
+\def\date{\today}
+
+% DOCUMENT START
+\begin{document}
+
+% TITLE PAGE
+\begin{center}
+    \vspace*{1.5cm}
+    % University Logo
+    \includegraphics[scale = 0.10]{ucsdseal.png}\\[1.75cm]
+    % University Name
+    \textsc{\color[RGB]{0, 51, 102}\LARGE{University of California San Diego}}\\[1cm]
+    \textsc{\Large{\course}}\\[.5cm]
+    \textsc{\Large{\thetitle}}\\[.5cm]
+    \textsc{\date}\\[2cm]
+    \Large{
+        \begin{tabular}{L{4cm} R{4cm}}
+            \textit{Author}  & \textit{Student ID} \\
+            \hline
+            % author names and PID
+            Nicholas DeGroot & A15948734
+        \end{tabular}
+    }
+\end{center}
+\thispagestyle{empty}
+\pagebreak
+
+% TABLE OF CONTENTS
+\tableofcontents{}
+\pagebreak
+
+% REPORT START
+\section{Introduction}
+% A broad problem statement, with context to justify the investment in spending 10 weeks on the project. This should be accessible to anyone – for instance, methodology staff, your family and friends, and hiring managers for the jobs you apply to should all be able to read this and understand what you are proposing and why it matters.
+
+We've all been there. It's been a long day of work, but you're finally home and ready to cook. The only problem: you have no idea what to make.
+
+\begin{itemize}
+    \item You could fall back on some classics, but it feels like you've been eating the same thing for weeks.
+    \item You could go out to eat, but that's expensive and you're trying to save money.
+    \item You could order takeout, but that's unhealthy and you're trying to eat better.
+\end{itemize}
+
+What's needed is a way to find new recipes that you'll actually enjoy, personalized to the things you already have on hand. My project will attempt to accomplish exactly this. The goal is a completely automated recipe recommendation system that will take into account the ingredients you have on hand, your dietary restrictions, and your personal preferences to recommend weekly meal plans that you don't need to think about. Users should be able to open up the app, see what's been scheduled for the day, and start cooking. Should users not like what's been scheduled, it'll be easy to swap out recipes for something else and incorporate that feedback back into the model for future meal plans.
+
+To my knowledge, nothing like this is available on the market. Existing services generally fall within one of two categories.
+
+\begin{itemize}
+
+    \item \textbf{Recipe Aggregators:} These services provide a collection of recipes that users can browse and search. Users are expected to find the recipes they want to cook themselves. Some services such as \citet{yummly} have integrated personalized search recommendations to make finding recipes easier, yet require users to manually build out their meal plans.
+
+    \item \textbf{Meal Kits:} These services provide pre-portioned ingredients and recipes for users to cook. Users select from pre-determined plans (such as Meat \& Veggies) and are sent a box of pre-portioned ingredients with their associated recipe each week \citep{hellofresh}. Minor customization is possible, but users are locked into a limited number of recipes. These services can become quite expensive and often require users to commit to a subscription.
+
+\end{itemize}
+
+Each service has its own strengths and weaknesses. Recipe aggregators are free and allow users to cook whatever they want, but require users to do all the work of finding recipes and building out meal plans. Meal kits are convenient and allow users to cook without having to think about it, but are expensive and require users to commit to a subscription. My project will attempt to combine the best of both worlds, providing a cheap, personalized, and low-effort meal planning service.
+
+\section{Statement of Work}
+% A narrow, careful problem statement for the domain expert. This section should discuss how these problems relate to the Quarter 1 Project in your domain. Has previous work attempted to answer these specific problems? If so, how did they fail? If not, why are these problems interesting? In what way does your investigation address a deficiency in the Quarter 1 Project? This section should be quite technical – make sure to refer to specific methods.
+
+The goal of this project is the recommendation engine powering the experience. The engine will be trained on a dataset of recipes and user interactions with those recipes. Open source datasets from UCSD already exist, such as \citet{recipegen}. The actual implementation of the recommendation engine will be done through a graph neural network, which will be trained on a graph-based representation of the recipes (node) and user (node) interactions (edge). This will be accomplished by storing data in a TigerGraph database, who have generously provided support for this project \citep{tigergraph}.
+
+Should time allow, this project can easily be expanded by adding new factors such as a recipes' nutritional value. Nodes can be created for used ingredients, with edges connecting every recipe they're used in. This data is open-sourced by the \citeauthor{fooddata}, who measure and publish all the information we are interested in. Edge weights can be calculated based on how much a recipe uses in one serving, allowing for quick calculations of nutritional facts. This information can finally be utilized by the model for better, more personalized recommendations.
+
+
+\section{Primary Output}
+% A statement of the primary output (i.e., state whether you will create a report/paper, a website, or an application). If your project analyzes data, specify how you will communicate the analyses. If your project generates data, how will you analyze the data it produces?
+
+
+The primary output of this project will be a website that showcases the recommendation engine. It will explain what the model is and how it works, as well as an analysis of the recommendations its making. For example, we will create "user personas" that attempt to simulate a particular user's preferences and see how the model performs for them. This will allow us to see how well the model is able to capture the user's preferences and make recommendations that they will enjoy.
+
+After being written, we expect to publish it as a free static site using either GitHub Pages or Netlify, depending on the framework used.
+
+
+\bibliography{citations}
+
+%************************************************************
+\end{document}
