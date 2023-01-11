@@ -10,6 +10,20 @@ This project was created for UCSD's DSC 180: Data Science Capstone. According to
 >
 > https://catalog.ucsd.edu/courses/DSC.html#dsc180a
 
+## Installation
+
+If running on a CUDA-enabled GPU, install all dependencies packages:
+
+```bash
+poetry install --with gpu
+```
+
+Otherwise, install all dependency packages with:
+
+```bash
+poetry install --with cpu
+```
+
 ## Project Organization
 
     ├── Makefile           <- Makefile with commands like `make data` or `make train`
@@ -45,9 +59,6 @@ This project was created for UCSD's DSC 180: Data Science Capstone. According to
     │   │   │                 predictions
     │   │   ├── base_model.py
     │   │   └── example_model.py
-    │   │
-    │
-    └── tox.ini            <- tox file with settings for running tox; see tox.readthedocs.io
 
 ---
 

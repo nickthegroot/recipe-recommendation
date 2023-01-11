@@ -1,15 +1,24 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-    "customizations": {
-      "vscode": {
-        "extensions": [
-          "ms-python.python",
-          "ms-toolsai.jupyter"
-        ]
-      }
+  "name": "Ubuntu",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/base:jammy",
+  "features": {
+    "ghcr.io/devcontainers/features/aws-cli:1": {},
+    "ghcr.io/devcontainers/features/nvidia-cuda:1": {
+      "installCudnn": true,
+      "cudaVersion": "11.2",
+      "cudnnVersion": "8.1.1.33"
     },
-    "features": {
-      "ghcr.io/devcontainers/features/nvidia-cuda:1": { 
-        "installCudnn": true
-      }
-    }
-  }
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.10"
+    },
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "configureZshAsDefaultShell": true
+    },
+    "ghcr.io/devcontainers-contrib/features/poetry:2": {}
+  },
+
+  "postAttachCommand": "poetry install"
+}
