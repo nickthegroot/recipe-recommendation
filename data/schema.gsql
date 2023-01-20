@@ -1,0 +1,73 @@
+// __     __        _   _               
+// \ \   / /__ _ __| |_(_) ___ ___  ___ 
+//  \ \ / / _ \ '__| __| |/ __/ _ \/ __|
+//   \ V /  __/ |  | |_| | (_|  __/\__ \
+//    \_/ \___|_|   \__|_|\___\___||___/
+                                     
+
+CREATE VERTEX Recipe (
+    PRIMARY_ID id UINT,
+    name STRING,
+    minutes FLOAT,
+    submitted DATETIME,
+    description STRING,
+    calories FLOAT,
+    total_fat_pdv FLOAT,
+    sugar_pdv FLOAT,
+    sodium_pdv FLOAT,
+    protein_pdv FLOAT,
+    saturated_fat_pdv FLOAT,
+    carbohydrates_pdv FLOAT
+)
+WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Ingredient (PRIMARY_ID name STRING)
+WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Tag (PRIMARY_ID name STRING)
+WITH primary_id_as_attribute="true"
+
+CREATE VERTEX User (PRIMARY_ID id STRING)
+WITH primary_id_as_attribute="true"
+
+//  _____    _                 
+// | ____|__| | __ _  ___  ___ 
+// |  _| / _` |/ _` |/ _ \/ __|
+// | |__| (_| | (_| |  __/\__ \
+// |_____\__,_|\__, |\___||___/
+//             |___/           
+
+CREATE UNDIRECTED EDGE Review (
+    FROM Recipe,
+    TO User,
+    date DATETIME,
+    rating UINT
+)
+
+CREATE UNDIRECTED EDGE Recipe_Ingredient (
+    FROM Recipe,
+    TO Ingredient
+    // should have a quantity attribute, but academic dataset doesn't include
+)
+
+CREATE UNDIRECTED EDGE Recipe_Tag (
+    FROM Recipe,
+    TO Tag
+)
+
+//   ____                 _     
+//  / ___|_ __ __ _ _ __ | |__  
+// | |  _| '__/ _` | '_ \| '_ \ 
+// | |_| | | | (_| | |_) | | | |
+//  \____|_|  \__,_| .__/|_| |_|
+//                 |_|          
+
+CREATE GRAPH RecipeGraph (
+    Recipe,
+    Ingredient,
+    Tag,
+    User,
+    Review,
+    Recipe_Ingredient,
+    Recipe_Tag
+)

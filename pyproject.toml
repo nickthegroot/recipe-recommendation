@@ -9,13 +9,11 @@ authors = ["Nick DeGroot <ndegroot@ucsd.edu>"]
 python = "^3.10"
 pydantic = "^1.10.2"
 pandas = "^1.5.2"
-torch = "^1.13.0"
-pyg-lib = "^0.1.0+pt113cu117"
-torch-scatter = "^2.1.0+pt113cu117"
-torch-sparse = "^0.6.15+pt113cu117"
-torch-cluster = "^1.6.0+pt113cu117"
-torch-spline-conv = "^1.2.1+pt113cu117"
-torch-geometric = "^2.1.0.post1"
+torch = "^1.13.1"
+networkx = "^3.0"
+matplotlib = "^3.6.3"
+pytigergraph = {extras = ["gds"], version = "^1.2.6"}
+python-dotenv = "^0.21.0"
 
 [tool.poetry.group.dev.dependencies]
 bandit = "*"
@@ -31,13 +29,6 @@ pytest = "*"
 pytest-cov = "*"
 pytest-xdist = "*"
 tqdm = "^4.64.1"
-
-
-[[tool.poetry.source]]
-name = "PyG"
-url = "https://data.pyg.org/whl/torch-1.13.0+cu117.html"
-default = false
-secondary = false
 
 [tool.isort]
 multi_line_output = 3

@@ -12,17 +12,10 @@ This project was created for UCSD's DSC 180: Data Science Capstone. According to
 
 ## Installation
 
-If running on a CUDA-enabled GPU, install all dependencies packages:
-
-```bash
-poetry install --with gpu
-```
-
-Otherwise, install all dependency packages with:
-
-```bash
-poetry install --with cpu
-```
+1. Install [poetry](https://python-poetry.org/docs/#installation)
+2. Download the data from [Kaggle](https://www.kaggle.com/shuyangli94/food-com-recipes-and-user-interactions) and unzip into `data/raw`
+3. Create a TigerGraph instance
+4. Clean and load the data into TigerGraph by running `make data`
 
 ## Project Organization
 
