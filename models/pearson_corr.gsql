@@ -1,0 +1,45 @@
+// Recommendation using Pearson correlation
+// Inspiration from: https://docs.tigergraph.com/gsql-ref/3.3/tutorials/pattern-matching/example
+// Note: this purposely doesn't filter out recipes that the user has already reviewed
+CREATE OR REPLACE QUERY recommendRecipes(VERTEX<User> user) SYNTAX v2 {
+    AvgAccum @RatingAvg; 
+    
+    SumAccum<float> @SimilarityScoreNumerator;
+    SumAccum<float> @SharedOtherVariance;
+    SumAccum<float> @SharedInputVariance;
+    SumAccum<float> @SimilarityScore;
+
+    SumAccum<float> @Rank;
+
+    InputUser = { user };
+
+    // 1. Calculate all normalized ratings
+    Others =
+        SELECT o
+        FROM InputUser - (Review) - Recipe - (Review:review) - User:o
+        ACCUM o.@RatingAvg += review.rating;
+
+    // 2. Calculate the Pearson correlation between the input user and each other user
+    Others =
+        SELECT o
+        FROM Others:o - (Review:otherReview) - Recipe - (Review:inputReview) - InputUser:u
+        ACCUM
+            o.@SimilarityScoreNumerator += (otherReview.rating - o.@RatingAvg) * (inputReview.rating - u.@RatingAvg),
+            o.@SharedOtherVariance += square(otherReview.rating - o.@RatingAvg),
+            o.@SharedInputVariance += square(inputReview.rating - u.@RatingAvg)
+        POST-ACCUM
+            IF o.@SharedOtherVariance * o.@SharedInputVariance > 0
+            THEN o.@SimilarityScore = o.@SimilarityScoreNumerator / sqrt(o.@SharedOtherVariance * o.@SharedInputVariance)
+            ELSE o.@SimilarityScore = 0
+            END;
+
+    // 3. Calculate each recipe's rank
+    Recommendations =
+        SELECT r
+        FROM Others:o - (Review:review) - Recipe:r
+        ACCUM r.@Rank += o.@SimilarityScore
+        ORDER BY r.@Rank DESC
+        LIMIT 10;
+
+    PRINT Recommendations;
+}

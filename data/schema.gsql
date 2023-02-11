@@ -6,7 +6,7 @@
                                      
 
 CREATE VERTEX Recipe (
-    PRIMARY_ID id UINT,
+    PRIMARY_ID id INT,
     name STRING,
     minutes FLOAT,
     submitted DATETIME,
@@ -17,7 +17,10 @@ CREATE VERTEX Recipe (
     sodium_pdv FLOAT,
     protein_pdv FLOAT,
     saturated_fat_pdv FLOAT,
-    carbohydrates_pdv FLOAT
+    carbohydrates_pdv FLOAT,
+
+    // Makes filtering easier in ML loading jobs
+    is_recipe BOOL DEFAULT 1
 )
 WITH primary_id_as_attribute="true"
 
@@ -27,7 +30,12 @@ WITH primary_id_as_attribute="true"
 CREATE VERTEX Tag (PRIMARY_ID name STRING)
 WITH primary_id_as_attribute="true"
 
-CREATE VERTEX User (PRIMARY_ID id STRING)
+CREATE VERTEX User (
+    PRIMARY_ID id STRING,
+    
+    // Used to save FastRP embeddings
+    embedding LIST<DOUBLE>
+)
 WITH primary_id_as_attribute="true"
 
 //  _____    _                 
@@ -41,7 +49,7 @@ CREATE UNDIRECTED EDGE Review (
     FROM Recipe,
     TO User,
     date DATETIME,
-    rating UINT
+    rating INT
 )
 
 CREATE UNDIRECTED EDGE Recipe_Ingredient (

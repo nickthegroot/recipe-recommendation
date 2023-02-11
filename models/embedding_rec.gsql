@@ -1,0 +1,37 @@
+CREATE OR REPLACE QUERY recommendRecipesEmbedded(VERTEX<User> user) SYNTAX v2 {
+    ListAccum<FLOAT> @@InputEmbedding;
+    MaxAccum<FLOAT> @Sim;
+    SumAccum<FLOAT> @Rank;
+
+    InputUser = { user };
+
+    // 1. Get the embedding of the input user
+    InputUser =
+        SELECT u
+        FROM InputUser:u
+        ACCUM
+            List<FLOAT> embedding = u.embedding,
+            FOREACH e IN embedding DO
+                @@InputEmbedding += e
+            END;
+
+
+    // 2. Calculate the similarity between the input user and all other users
+    Users =
+        SELECT u
+        FROM User:u
+        ACCUM u.@Sim += -tg_euclidean_distance_accum(@@InputEmbedding, u.embedding);
+
+    // 3. Calculate the rank of each recipe based on the similarity of the users who reviewed it
+    Recomendations =
+        SELECT r
+        FROM Users:o - (Review) - Recipe:r
+        // TODO: test if scaling by review works?
+        ACCUM r.@Rank += o.@Sim
+        ORDER BY r.@Rank DESC
+        LIMIT 10;
+
+    PRINT Recomendations;
+}
+
+INTERPRET QUERY recommendRecipesEmbedded(38094)
