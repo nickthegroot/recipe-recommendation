@@ -4,6 +4,9 @@ version = "0.1.0"
 description = "The recommendation engine for home-cooked recipes"
 authors = ["Nick DeGroot <ndegroot@ucsd.edu>"]
 
+[tool.poetry.scripts]
+make_dataset = "roomgraph.data.make_dataset:main"
+sync_dataset = "roomgraph.data.sync_dataset:main"
 
 [tool.poetry.dependencies]
 python = "^3.10"

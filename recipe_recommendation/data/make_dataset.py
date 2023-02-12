@@ -1,26 +1,17 @@
-# -*- coding: utf-8 -*-
-import click
-import logging
-from pathlib import Path
-import os
+import pandas as pd
+
+from .clean_interactions import clean_interactions
+from .clean_recipes import clean_recipes
 
 
-@click.command()
-@click.argument('data_dir', type=click.Path(exists=True, file_okay=False, dir_okay=True))
-def main(data_dir):
-    """ Runs data processing scripts to turn raw data from (../raw) into
-        cleaned data ready to be analyzed (saved in ../processed).
-    """
-    logger = logging.getLogger(__name__)
-    logger.info('making final data set from raw data')
-
-    external_dir = os.path.join(data_dir, "external")
-    raw_dir = os.path.join(data_dir, "raw")
-    interim_dir = os.path.join(data_dir, "interim")
-    processed_dir = os.path.join(data_dir, "processed")
-
+def main():
+    df_rec = pd.read_csv('../../data/raw/recipes.csv', index_col='id')
+    df_rec = clean_recipes(df_rec)
+    df_rec.to_parquet('../../data/processed/recipes.parquet')
+    
+    df_int = pd.read_csv('../../data/raw/interactions.csv')
+    df_int = clean_interactions(df_int)
+    df_int.to_parquet('../../data/processed/interactions.parquet')
 
 if __name__ == '__main__':
-
-
     main()

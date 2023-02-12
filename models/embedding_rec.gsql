@@ -20,7 +20,7 @@ CREATE OR REPLACE QUERY recommendRecipesEmbedded(VERTEX<User> user) SYNTAX v2 {
     Users =
         SELECT u
         FROM User:u
-        ACCUM u.@Sim += -tg_euclidean_distance_accum(@@InputEmbedding, u.embedding);
+        ACCUM u.@Sim += -tg_euclidean_distance(@@InputEmbedding, u.embedding);
 
     // 3. Calculate the rank of each recipe based on the similarity of the users who reviewed it
     Recomendations =
