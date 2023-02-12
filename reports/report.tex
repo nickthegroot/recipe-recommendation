@@ -1,11 +1,6 @@
 \documentclass{article}
 \usepackage[final]{common/neurips_2022}
-
-
-% to avoid loading the natbib package, add option nonatbib:
-%    \usepackage[nonatbib]{neurips_2022}
-
-
+\usepackage[nottoc,numbib]{tocbibind}
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 \usepackage{hyperref}       % hyperlinks
@@ -17,17 +12,7 @@
 \usepackage{xcolor}         % colors
 
 
-\title{Recipe Recommendation using Graph-Based Models}
-
-
-% The \author macro works with any number of authors. There are two commands
-% used to separate the names and addresses of multiple authors: \And and \AND.
-%
-% Using \And between authors leaves it to LaTeX to determine where to break the
-% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
-% authors names on the first line, and the last on the second line, try using
-% \AND instead of \And before the third author name.
-
+\title{Personalized Recipe Recommendation Using Heterogeneous Graphs}
 
 \author{%
   Nicholas DeGroot \\
@@ -44,15 +29,106 @@
 
 
 \begin{abstract}
-      \answerTODO
+  \answerTODO
 \end{abstract}
 
 
 \section{Introduction}
+% There are three pieces to an introduction section:
+% 
+% 1. An introductory paragraph. The first paragraph in your introduction will start by introducing the context in which your project is relevant. It will then state the problem that you’re trying to solve, and summarize some of your key results and their implications.
+% 
+% 2/ A literature review and discussion of prior work. Here, you’ll provide context on what has been attempted in the past in the realm of your problem. This will both set up the context in which your problem exists and shed light on why your approach is different.
+% 
+% 3. A data description (this is a data science capstone, after all).
+% 
+% If you’re in a data-focused domain, you should describe why the data you’re using will help address the problem at hand.
+% If you’re in a methods-focused domain (that is, a domain in which you’re developing new methods), you should describe the kinds of data that your methods are applicable to. For instance, if you’re developing methods for using convolutional neural networks with graphs, you should describe why graph-based data is useful in the real-world.
 
-\answerTODO
+
+We've all been there. It's been a long day of work, but you're finally home and ready to cook. The only problem: you have no idea what to make.
+
+\begin{itemize}
+  \item You could fall back on some classics, but it feels like you've been eating the same thing for weeks.
+  \item You could go out to eat, but that's expensive and you're trying to save money.
+  \item You could order takeout, but that's unhealthy and you're trying to eat better.
+\end{itemize}
+
+What's needed is a way to find new recipes that you'll actually enjoy, personalized to the things you already have on hand. This project accomplishes exactly this. The result is a completely automated recipe recommendation system that will take into account the ingredients you have on hand, your dietary restrictions, and your personal preferences to recommend weekly meal plans that you don't need to think about. Users should be able to open up the app, see what's been scheduled for the day, and start cooking. Should users not like what's been scheduled, it'll be easy to swap out recipes for something else and incorporate that feedback back into the model for future meal plans.
+
+To my knowledge, nothing like this is available on the market. Existing services generally fall within one of two categories.
+
+\begin{itemize}
+
+  \item \textbf{Recipe Aggregators:} These services provide a collection of recipes that users can browse and search. Users are expected to find the recipes they want to cook themselves. Some services such as \citet{yummly} have integrated personalized search recommendations to make finding recipes easier, yet require users to manually build out their meal plans.
+        
+  \item \textbf{Meal Kits:} These services provide pre-portioned ingredients and recipes for users to cook. Users select from pre-determined plans (such as Meat \& Veggies) and are sent a box of pre-portioned ingredients with their associated recipe each week \citep{hellofresh}. Minor customization is possible, but users are locked into a limited number of recipes. These services can become quite expensive and often require users to commit to a subscription.
+        
+\end{itemize}
+
+Each service has its own strengths and weaknesses. Recipe aggregators are free and allow users to cook whatever they want, but require users to do all the work of finding recipes and building out meal plans. Meal kits are convenient and allow users to cook without having to think about it, but are expensive and require users to commit to a subscription. This project combines the best of both worlds: providing a cheap, personalized, and low-effort meal planning service.
+
+We accomplished this using a variety of graph-based models, which differ from the more traditional approaches used by other recommendation services. Graph-based models are able to capture more complex relationships between users and recipes, and are more easily able to combine additional information such as ingredients.
 
 \section{Methods}
+% This section often goes by different names, e.g. experimental design, and sometimes appears at the start of the “Results” section of a paper rather than as its own section (as we saw in the chart above). Regardless of its title, the purpose of this section is to describe the steps that you took to produce the results you’ll discuss in the following section. It should contain enough details for a reader to be able to understand what you did, without containing so much detail that it distracts from the storyline – leave ultra-fine details for the appendix.
+
+% If your project involves developing multiple models that are very different, you may want to dedicate a separate section to each one. This may apply, for instance, if you used two different approaches to solve your overarching problem, or if you used different models to label data and to train a classifier.
+
+To build out our recipe recommendation system, we used an existing dataset published by \citet{recipegen} based of food.com reviews. After transforming the data and loading it into TigerGraph, we were left with 231,636 recipes across 1,132,366 interactions. Each interaction was associated with a particular user and their rating from a scale of 1-5. Furthermore, we were able to extract additional information about each recipe, including the ingredients and any tags associated with it. We used this data to train a variety of graph-based models, including collaborative filtering, node embedding, and deep learning models. We then evaluated the performance of each model using a variety of metrics.
+
+\subsection{Collaborative Filtering Models}
+
+We started with a classic collaborative filtering model. The model works in three steps.
+
+For any given user $u$:
+\begin{enumerate}
+  \item Find all recipes $r$ that $u$ has interacted with.
+  \item Find all users $O$ that have interacted with the same recipes as $u$ ($r$).
+  \item Calculate the average rating for each user in $O$ ($\bar{R}_o$)
+  \item Calculate the similarity score for each user in $O$ using pearson correlation, where $I_u$ is the set of recipes that $u$ has interacted with:
+        $$
+          Sim(u, o) = \frac
+          {
+            \sum_{i \in I_u \cup I_o} (R_{u,i} - \bar{R_u})(R_{o,i} - \bar{R_o})
+          }{
+            \sqrt{
+              \sum_{i \in I_u \cup I_o} (R_{u,i} - \bar{R_u})^2
+              \sum_{i \in I_u \cup I_o} (R_{o,i} - \bar{R_o})^2
+            }
+          }
+        $$
+  \item Calculate the rank of each recipe $r$ using the following formula, where $U_r$ is the set of users that have interacted with recipe $r$:
+        $$
+          Rank(r) = \sum_{o \in U_r} Sim(u, o) \cdot (R_{o, r} - \bar{R_o} + 1)
+        $$
+\end{enumerate}
+
+% TODO: explain why norm and +1
+
+While such a model isn't exclusive to graph-based networks, using one does allow the model to perform more efficiently in finding the relevant users/items.
+
+It's important to note that while most recommendation systems filter out recipes that users have already interacted with, we decided to keep them in the model. This is because we wanted to be able to recommend recipes that users have already interacted with, but may have not tried in awhile. This is particularly important to note when considering the results of our user research, which suggested that users generally prefer to cook recipes they've already cooked before.
+
+\subsection{Node Embedding Models}
+
+While the collaborative filtering model was able to capture some of the relationships between users and recipes, it was unable to capture more complex relationships. For example, if a user has interacted with a recipe that contains a particular ingredient, we would like to be able to recommend other recipes that contain that same ingredient. To accomplish this, we next implemented a node embedding model.
+
+For any given user $u$:
+\begin{enumerate}
+  \item Use the FastRP algorithm \citep{fastRP} to generate a node embedding for each user.
+        \subitem We used an embedding dimension of $5$ over $3$ iterations.
+        \subitem We allowed the algorithm to walk across all User, Recipe, and Ingredient nodes.
+  \item Calculate the similarity of $u$ with every other user using euclidian distance over their FastRP embeddings.
+        Calculate the rank of each recipe $r$ using the following formula, where $U_r$ is the set of users that have interacted with recipe $r$:
+        $$
+          Rank(r) = \sum_{o \in U_r} Sim(u, o) \cdot (R_{o, r} - \bar{R_o} + 1)
+        $$
+\end{enumerate}
+
+This has a number of advantages over the collaborative filtering model. Mainly, it allows us to capture more complex information between users and recipes. For example, if a user has interacted with a recipe that contains a particular ingredient, we would like to be able to intergrade that information into the recomendation. Our model captures this through the FastRP embeddings, which calculates latent information about each ingredient and forwards it through the model to each user.
+
+\subsection{Deep Learning Models}
 
 \answerTODO
 
@@ -68,13 +144,15 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\appendix
+\bibliographystyle{dinat}
+\bibliography{citations}
 
+\appendix
 
 \section{Appendix}
 
 
-Optional.
+\textit{Optional.}
 
 
 \end{document}
