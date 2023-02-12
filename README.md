@@ -20,3 +20,10 @@ This project was created for UCSD's DSC 180: Data Science Capstone. According to
 6. Create the graph schema by running `data/schema.gsql` directly on the instance
 7. Create a `.env` file using the `.env.sample` template, and fill with your instance's information.
 8. Load the data into TigerGraph by running `poetry run sync_dataset`
+
+## Models
+
+Currently, all models are crafted as GSQL statements designed to be run directly on the TigerGraph instance. To install,
+
+1. Install all queries located inside `models/` directly on the TigerGraph instance
+2. Run `data/fastRP_embed.gsql` to generate node embeddings and load them into the graph

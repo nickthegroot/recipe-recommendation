@@ -1,20 +1,29 @@
+import os
+from pathlib import Path
+
+import click
 import numpy as np
 import pandas as pd
-from dotenv import dotenv_values
 from pyTigerGraph import TigerGraphConnection
 
+from .. import config as Config
 
-def main(config: dict):
+
+def sync_dataset(
+    host: str,
+    secret: str,
+    processed_path: Path
+):
     conn = TigerGraphConnection(
-        host=config.get('TG_HOST'),
-        gsqlSecret=config.get('TG_SECRET'),
+        host=host,
+        gsqlSecret=secret,
         graphname="RecipeGraph",
     )
-    conn.getToken(config.get('TG_SECRET'))
+    conn.getToken(secret)
 
     # Load data
-    df_rec = pd.read_parquet('../../data/processed/recipes.parquet')
-    df_int = pd.read_parquet('../../data/processed/interactions.parquet')
+    df_rec = pd.read_parquet(processed_path  / 'recipes.parquet')
+    df_int = pd.read_parquet(processed_path / 'interactions.parquet')
     
     # Perform minor conversions due to database constraints
     df_rec.submitted = df_rec.submitted.astype(str)
@@ -133,6 +142,13 @@ def upload_edges(
         attributes={}
     )
 
-if __name__ == '__main__':
-    config = dotenv_values()
-    main(config)
+@click.command()
+@click.argument('processed_filepath', type=click.Path(exists=True), default=Config.PROCESSED_DATA_DIR)
+@click.option('--host', type=str, default=os.environ.get('TG_HOST'))
+@click.option('--secret', type=str, default=os.environ.get('TG_SECRET'))
+def main(
+    host: str,
+    secret: str,
+    processed_path: str,
+):
+    sync_dataset(host, secret, processed_path)
