@@ -13,6 +13,7 @@ RUN poetry install --no-cache
 
 # add source code
 COPY ./data/test ./data/test
+COPY ./Makefile Makefile
 COPY ./recipe_recommendation ./recipe_recommendation
 RUN poetry install --no-cache --only-root
 
