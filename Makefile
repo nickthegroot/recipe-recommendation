@@ -1,53 +1,31 @@
-.PHONY: clean data lint install docker push format
+.PHONY: clean data lint requirements
 
 #################################################################################
 # GLOBALS                                                                       #
 #################################################################################
 
 PROJECT_DIR := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-# BUCKET = [OPTIONAL] your-bucket-for-syncing-data (do not include 's3://')
-PROFILE = default
-PROJECT_NAME = recipe-recommendation
+PROJECT_NAME = recipe_recommendation
 PYTHON_INTERPRETER = python3
-SRC_DIR = recipe_recommendation
+
+ifeq (,$(shell which conda))
+HAS_CONDA=False
+else
+HAS_CONDA=True
+endif
 
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
-ifeq ($(OS),Windows_NT)
-VENV_BIN = .venv/Script
-else
-VENV_BIN = .venv/bin
-endif
-
-
-## Set up python interpreter environment
-create_environment:
-	@echo ">>> Creating environment"
-	$(PYTHON_INTERPRETER) -m pip install --upgrade pip
-	$(PYTHON_INTERPRETER) -m pip install -U poetry
 
 ## Install Python Dependencies
-install: create_environment
-	@echo ">>> Installing python dependencies"
-	$(PYTHON_INTERPRETER) -m poetry update --lock # ensures all dependencies are as up-to-date as possible
-	$(PYTHON_INTERPRETER) -m poetry install --no-root
-
-	@echo ">>> Activate virtual environment for windows and posix"
-	@echo "$(shell pwd) $(PWD) $(VENV_BIN)"
-	. $(VENV_BIN)/activate && exec bash
-
-
+requirements: test_environment
+	$(PYTHON_INTERPRETER) -m pip install -U pip setuptools wheel
+	$(PYTHON_INTERPRETER) -m pip install -r requirements.txt
 
 ## Make Dataset
-data:
-	@echo ">>> Making dataset"
-	$(PYTHON_INTERPRETER) poetry run make_dataset
-
-## Sync Dataset
-sync_data:
-	@echo ">>> Syncing data"
-	$(PYTHON_INTERPRETER) poetry run sync_dataset
+data: requirements
+	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
 
 ## Delete all compiled Python files
 clean:
@@ -56,18 +34,29 @@ clean:
 
 ## Lint using flake8
 lint:
-	flake8 $(SRC_DIR)
+	flake8 src
 
-## Format using black
-format:
-	black $(SRC_DIR)
+## Set up python interpreter environment
+create_environment:
+ifeq (True,$(HAS_CONDA))
+		@echo ">>> Detected conda, creating conda environment."
+ifeq (3,$(findstring 3,$(PYTHON_INTERPRETER)))
+	conda create --name $(PROJECT_NAME) python=3
+else
+	conda create --name $(PROJECT_NAME) python=2.7
+endif
+		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
+else
+	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
+	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
+	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
+	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
+	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+endif
 
-## Run bandit security test
-bandit:
-	poetry run bandit -n 3 -r $(SRC_DIR)
-
-test:
-	poetry run pytest
+## Test python environment is setup correctly
+test_environment:
+	$(PYTHON_INTERPRETER) test_environment.py
 
 #################################################################################
 # PROJECT RULES                                                                 #

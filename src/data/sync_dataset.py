@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pyTigerGraph import TigerGraphConnection
 
-from .. import config as Config
+from ...src import config as Config
 
 
 def sync_dataset(
@@ -22,16 +22,18 @@ def sync_dataset(
     conn.getToken(secret)
 
     # Load data
-    df_rec = pd.read_parquet(processed_path  / 'recipes.parquet')
+    df_rec = pd.read_parquet(processed_path / 'recipes.parquet')
     df_int = pd.read_parquet(processed_path / 'interactions.parquet')
-    
+
     # Perform minor conversions due to database constraints
     df_rec.submitted = df_rec.submitted.astype(str)
     df_rec.minutes = df_rec.minutes.dt.total_seconds() / 60
     df_rec.description = df_rec.description.fillna("")
-    df_rec.dropna(inplace=True) # there's one row with NULL name - safe to drop
+    # there's one row with NULL name - safe to drop
+    df_rec.dropna(inplace=True)
 
-    df_int = df_int[df_int.recipe_id.isin(df_rec.index)] # ensure all recipe IDs are in the graph
+    # ensure all recipe IDs are in the graph
+    df_int = df_int[df_int.recipe_id.isin(df_rec.index)]
     df_int.user_id = df_int.user_id.astype(str)
     df_int.date = df_int.date.astype(str)
     df_int.rating = df_int.rating.astype(np.uint8)
@@ -39,9 +41,9 @@ def sync_dataset(
     # Parse out unique information
     # Note: TigerGraph breaks when commas are used as keys
     df_ingredients = df_rec.ingredients.explode().reset_index(drop=False)
-    df_ingredients['ingredients'] = df_ingredients.ingredients.str.replace(',', '')
+    df_ingredients['ingredients'] = df_ingredients.ingredients.str.replace(
+        ',', '')
     df_tags = df_rec.tags.explode().reset_index(drop=False)
-
 
     # -- Upsert vertices --
     upload_vertices(conn, df_int, df_rec, df_ingredients, df_tags)
@@ -49,8 +51,6 @@ def sync_dataset(
     # -- Upsert edges --
     upload_edges(conn, df_int, df_rec, df_ingredients, df_tags)
 
-
-    
 
 def upload_vertices(
     conn: TigerGraphConnection,
@@ -85,7 +85,6 @@ def upload_vertices(
         attributes={}
     )
 
-
     unique_tags = df_tags.drop_duplicates(subset=['tags'])
     conn.upsertVertexDataFrame(
         unique_tags,
@@ -101,6 +100,7 @@ def upload_vertices(
         v_id='user_id',
         attributes={}
     )
+
 
 def upload_edges(
     conn: TigerGraphConnection,
@@ -141,6 +141,7 @@ def upload_edges(
         to_id='tags',
         attributes={}
     )
+
 
 @click.command()
 @click.argument('processed_filepath', type=click.Path(exists=True), default=Config.PROCESSED_DATA_DIR)

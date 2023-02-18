@@ -1,0 +1,35 @@
+# local package
+-e .
+
+# PyTorch
+-f https://download.pytorch.org/whl/cpu
+torch==1.13.1
+
+# PyG
+-f https://data.pyg.org/whl/torch-1.13.1+cpu.html
+torch-geometric==2.2.0
+pyg-lib
+torch-scatter
+torch-sparse
+torch-cluster
+torch-spline-conv
+
+# PyTorch Lightning
+pytorch-lightning==1.9.2
+
+# Misc
+pandas == 1.5.2
+pyarrow
+matplotlib
+pytigergraph[gds]
+python-dotenv
+
+# Development
+click
+black
+flake8
+flake8-docstrings
+isort
+jupyter
+pytest
+pytest-xdist

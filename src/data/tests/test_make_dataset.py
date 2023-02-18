@@ -1,8 +1,8 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-from ... import config as Config
-from ..make_dataset import make_dataset
+from src import config as Config
+from src.data.make_dataset import make_dataset
 
 
 def test_make_dataset():
@@ -14,6 +14,6 @@ def test_make_dataset():
             output_path=out_path,
         )
 
-        assert(out_path.exists())
-        assert((out_path / 'recipes.parquet').exists())
-        assert((out_path / 'interactions.parquet').exists())
+        assert (out_path.exists())
+        assert ((out_path / 'recipes.parquet').exists())
+        assert ((out_path / 'interactions.parquet').exists())

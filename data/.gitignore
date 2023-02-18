@@ -1,0 +1,11 @@
+*
+!.gitignore
+
+!processed
+!processed/.gitkeep
+
+!test
+!test/*
+
+!schema.gsql
+!fastRP_embed.gsql

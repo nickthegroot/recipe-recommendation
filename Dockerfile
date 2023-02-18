@@ -2,14 +2,8 @@ FROM ucsdets/scipy-ml-notebook:2023.1-stable
 
 LABEL org.opencontainers.image.source=https://github.com/nickthegroot/recipe-recommendation
 
-RUN pip install --upgrade pip
-RUN pip install poetry
-
-# disable virtualenv for poetry
-RUN poetry config virtualenvs.create false
-
-COPY ./poetry.lock ./pyproject.toml ./
-RUN poetry install --no-cache
+RUN python -m pip install -U pip setuptools wheel
+RUN python -m pip install -r requirements.txt
 
 # add source code
 COPY ./data/test ./data/test
