@@ -20,9 +20,8 @@ def clean_recipes(df: pd.DataFrame):
     df.loc[261647, 'minutes'] = 25
 
     # Conversion to datetime
-    df.minutes = pd.to_timedelta(df.minutes, unit='m')
     df.submitted = pd.to_datetime(df.submitted)
-    
+
     return df
 
 
