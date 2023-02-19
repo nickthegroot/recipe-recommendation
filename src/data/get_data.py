@@ -3,9 +3,10 @@ from pathlib import Path
 import pandas as pd
 import torch
 from torch_geometric.data import HeteroData
+from torch_geometric.transforms import ToUndirected
 
 
-def get_data(input_dir: Path):
+def get_data(input_dir: Path) -> HeteroData:
     data = HeteroData()
 
     # Add nodes for each type.
@@ -68,4 +69,5 @@ def get_data(input_dir: Path):
         df_rev_edgelist['rating'].values
     )
 
+    data = ToUndirected()(data)
     return data

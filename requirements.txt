@@ -21,6 +21,7 @@ pytorch-lightning==1.9.2
 pandas == 1.5.2
 pyarrow
 matplotlib
+tensorboard
 pytigergraph[gds]
 python-dotenv
 
