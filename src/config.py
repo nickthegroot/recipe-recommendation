@@ -23,4 +23,4 @@ PROCESSED_DATA_DIR: str = os.path.join(DATA_DIR, "processed")
 TEST_DATA_DIR: str = os.path.join(DATA_DIR, "test")
 
 # # MODEL DIRECTORIES
-MODEL_DIR: str = os.path.join(PROJECT_DIR, "model")
+MODEL_DIR: str = os.path.join(PROJECT_DIR, "models")
