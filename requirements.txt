@@ -15,10 +15,11 @@ torch-cluster
 torch-spline-conv
 
 # PyTorch Lightning
-pytorch-lightning==1.9.2
+pytorch-lightning[extra]==1.9.2
 
 # Misc
 pandas == 1.5.2
+torch-tb-profiler
 pyarrow
 matplotlib
 tensorboard

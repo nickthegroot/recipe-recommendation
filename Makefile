@@ -1,4 +1,4 @@
-.PHONY: clean data lint requirements
+.PHONY: clean data lint requirements test
 
 #################################################################################
 # GLOBALS                                                                       #
@@ -26,6 +26,10 @@ requirements: test_environment
 ## Make Dataset
 data: requirements
 	$(PYTHON_INTERPRETER) src/data/make_dataset.py data/raw data/processed
+
+## Test
+test:
+	$(PYTHON_INTERPRETER) -m pytest
 
 ## Delete all compiled Python files
 clean:

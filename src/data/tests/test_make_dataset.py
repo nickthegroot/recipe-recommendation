@@ -1,6 +1,8 @@
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
+import pandas as pd
+
 from src import config as Config
 from src.data.make_dataset import make_dataset
 
@@ -15,5 +17,18 @@ def test_make_dataset():
         )
 
         assert (out_path.exists())
+
         assert ((out_path / 'recipes.parquet').exists())
-        assert ((out_path / 'interactions.parquet').exists())
+        df = pd.read_parquet(out_path / 'recipes.parquet')
+        assert len(df) == 3
+
+        assert ((out_path / 'users.parquet').exists())
+        df = pd.read_parquet(out_path / 'users.parquet')
+        assert len(df) == 3
+
+        assert ((out_path / 'ingredients.parquet').exists())
+        df = pd.read_parquet(out_path / 'ingredients.parquet')
+        assert len(df) == 1
+
+        assert ((out_path / 'ingredient_edgelist.parquet').exists())
+        assert ((out_path / 'review_edgelist.parquet').exists())

@@ -17,7 +17,8 @@ def clean_recipes(df: pd.DataFrame):
 
     # https://www.food.com/recipe/no-bake-granola-balls-261647
     # Misinputted as 2147483647 min, which overflows later calculations
-    df.loc[261647, 'minutes'] = 25
+    if 261647 in df.index:
+        df.loc[261647, 'minutes'] = 25
 
     # Conversion to datetime
     df.submitted = pd.to_datetime(df.submitted)
