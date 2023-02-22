@@ -3,7 +3,7 @@ from pytorch_lightning.cli import LightningCLI
 from src.models.lightgcn.loader import DataModule
 
 # Needed for LightningCLI to find
-import src.models.lightgcn.model
+from src.models.lightgcn.model import HeteroLGN
 
 
 class CustomCLI(LightningCLI):

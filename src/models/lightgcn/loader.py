@@ -17,7 +17,6 @@ class DataModule(pl.LightningDataModule):
         super().__init__()
         self.batch_size = batch_size
 
-        # TODO: split data into train/val/test
         data = get_data(Path(data_dir))
         # LightGCN works only with user - item graphs, ignore higher order nodes
         del data['ingredient']
@@ -27,7 +26,6 @@ class DataModule(pl.LightningDataModule):
         transform = T.RandomLinkSplit(
             num_val=0.1,
             num_test=0.1,
-            disjoint_train_ratio=0.3,
             edge_types=("user", "reviews", "recipe"),
             rev_edge_types=("recipe", "rev_reviews", "user"),
         )
@@ -39,6 +37,8 @@ class DataModule(pl.LightningDataModule):
     def train_dataloader(self):
         edge_label_index = self.train_data['user',
                                            'reviews', 'recipe'].edge_label_index
+
+        # Possible improvement: use a temporal sampling strat to ensure later data doesn't affect earlier data
         return LinkNeighborLoader(
             self.train_data,
             edge_label_index=(('user', 'reviews', 'recipe'), edge_label_index),
@@ -49,11 +49,12 @@ class DataModule(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-        edge_label_index = self.val_data['user',
-                                         'reviews', 'recipe'].edge_label_index
+        edge_label_index = self.val_data['user', 'reviews', 'recipe'].edge_label_index
         return LinkNeighborLoader(
             self.val_data,
             edge_label_index=(('user', 'reviews', 'recipe'), edge_label_index),
+            shuffle=True,
             num_neighbors=[8],
+            neg_sampling='triplet',
             batch_size=self.batch_size,
         )
