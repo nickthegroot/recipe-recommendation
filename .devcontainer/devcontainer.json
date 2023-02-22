@@ -1,0 +1,22 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+  "name": "Recipe-Recommendation",
+  "build": {
+    "context": "..",
+    "dockerfile": "../Dockerfile"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/nvidia-cuda:1": {
+      "installCudnn": true,
+      "cudaVersion": "11.8",
+      "cudnnVersion": "8.6.0.163"
+    },
+    "ghcr.io/iterative/features/nvtop:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {},
+    "ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {
+      "fisher": true
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {}
+  }
+}
