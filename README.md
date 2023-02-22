@@ -42,3 +42,5 @@ The easiest way to get started with `devcontainers` is through [GitHub Codespace
 All models can be trained using `python src/cli/train.py`.
 
 - Run `python src/cli/train.py --help` for all configuration options (there's a lot!)
+- In general, all models can be trained via `python src/cli/train.py fit`
+  - For example, `HeteroLCN` is trained with `python src/cli/train.py fit --model HeteroLGN`
