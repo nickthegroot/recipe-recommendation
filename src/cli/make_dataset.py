@@ -19,6 +19,9 @@ def make_dataset(
     df_int = pd.read_csv(input_path / 'interactions.csv')
     df_int = clean_interactions(df_int)
 
+    # Create Cleaned Interactions (for DB sync)
+    df_int.to_parquet(output_path / 'interactions.parquet')
+
     # Create Recipe Node List
     df_rec.to_parquet(output_path / 'recipes.parquet', index=True)
 

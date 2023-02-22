@@ -1,0 +1,8 @@
+{
+    "id": "shell",
+    "version": "1.0.0",
+    "description": "Common shell programs I use",
+    "installsAfter": [
+      "ghcr.io/meaningful-ooo/devcontainer-features/fish"
+    ]
+  }

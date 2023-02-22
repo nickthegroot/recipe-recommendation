@@ -1,11 +1,11 @@
 import pytorch_lightning as pl
 import torch
 from torch_geometric.data import HeteroData
-from torch_geometric.nn import LightGCN
+from torch_geometric.nn import LightGCN as TGLightGCN
 from torch_geometric.typing import Adj, OptTensor
 
 
-class Model(pl.LightningModule):
+class LightGCN(pl.LightningModule):
     def __init__(
         self,
         num_users: int,
@@ -17,7 +17,7 @@ class Model(pl.LightningModule):
         self.save_hyperparameters()
         self.num_users = num_users
         num_nodes = num_users + num_recipes
-        self.model = LightGCN(num_nodes, embedding_dim, num_layers)
+        self.model = TGLightGCN(num_nodes, embedding_dim, num_layers)
 
     def forward(self, edge_index: Adj, edge_label_index: OptTensor = None):
         return self.model.forward(edge_index, edge_label_index)
