@@ -36,3 +36,9 @@ The easiest way to get started with `devcontainers` is through [GitHub Codespace
 2. Unzip the data into `data/raw`.
    - You should see two files: `data/raw/interactions.csv` and `data/raw/recipes.csv`
 3. Run `make data` to clean the data into its cleaned form.
+
+## Running
+
+All models can be trained using `python src/cli/train.py`.
+
+- Run `python src/cli/train.py --help` for all configuration options (there's a lot!)

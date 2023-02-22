@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 from pyTigerGraph import TigerGraphConnection
 
-from ...src import config as Config
+from src import config as Config
 
 
 def sync_dataset(
