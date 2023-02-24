@@ -1,6 +1,7 @@
 import pytorch_lightning as pl
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from torch_geometric.data import HeteroData
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.nn.models.lightgcn import BPRLoss
@@ -80,7 +81,6 @@ class HeteroLGN(pl.LightningModule):
         
         self.alpha = 1 / (num_layers + 1)
         self.conv = HeteroLGConv()
-        self.loss = BPRLoss()
 
     def forward(
         self,
@@ -120,7 +120,8 @@ class HeteroLGN(pl.LightningModule):
         pos_x = rec_out[pos_idx]
         neg_x = rec_out[neg_idx]
 
-        loss = self.loss(pos_x, neg_x)
+        log_prob = F.logsigmoid(pos_x - neg_x).mean()
+        loss = -log_prob
         return loss
 
     def training_step(self, x: HeteroData, batch_idx):

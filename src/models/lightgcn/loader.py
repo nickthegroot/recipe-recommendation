@@ -53,7 +53,6 @@ class DataModule(pl.LightningDataModule):
         return LinkNeighborLoader(
             self.val_data,
             edge_label_index=(('user', 'reviews', 'recipe'), edge_label_index),
-            shuffle=True,
             num_neighbors=[8],
             neg_sampling='triplet',
             batch_size=self.batch_size,
