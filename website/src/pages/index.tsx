@@ -1,9 +1,10 @@
-import React from "react";
 import Link from "@docusaurus/Link";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import Layout from "@theme/Layout";
 import clsx from "clsx";
-
+import React from "react";
+import HomepageProblems from "../components/HomepageProblems";
+import HomescreenContainer from "../components/HomescreenContainer";
 import styles from "./index.module.css";
 
 function HomepageHeader() {
@@ -21,9 +22,9 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="https://github.com/nickthegroot/recipe-recommendation/raw/main/reports/report.pdf"
+            to="/docs/intro"
           >
-            🔗 Read the Paper
+            🔗 Learn More
           </Link>
         </div>
       </div>
@@ -39,7 +40,19 @@ export default function Home(): JSX.Element {
       description={`Homepage for the ${siteConfig.title} project`}
     >
       <HomepageHeader />
-      <main>{/* <HomepageFeatures /> */}</main>
+      <br />
+      <main>
+        <HomepageProblems />
+        <HomescreenContainer>
+          <h1>The Solution</h1>
+          <p style={{ width: "75%", textAlign: "center" }}>
+            What's needed is a way to find new recipes that you'll actually
+            enjoy, personalized to the things you already have on hand. To this
+            end, we present the first step in making this dream a reality:{" "}
+            <b>the recipe recommendation engine</b>.
+          </p>
+        </HomescreenContainer>
+      </main>
     </Layout>
   );
 }

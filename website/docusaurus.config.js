@@ -4,6 +4,9 @@
 const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
+const math = require("remark-math");
+const katex = require("rehype-katex");
+
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Recipe Recommendation",
@@ -16,11 +19,6 @@ const config = {
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: "/",
 
-  // GitHub pages deployment config.
-  // If you aren't using GitHub pages, you don't need these.
-  organizationName: "nickthegroot", // Usually your GitHub org/user name.
-  projectName: "recipe-recommendation", // Usually your repo name.
-
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
 
@@ -32,16 +30,22 @@ const config = {
     locales: ["en"],
   },
 
+  themes: ["@docusaurus/theme-mermaid"],
+  markdown: {
+    mermaid: true,
+  },
+
   presets: [
     [
       "classic",
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
-        docs: {
-          sidebarPath: require.resolve("./sidebars.js"),
-        },
         theme: {
           customCss: require.resolve("./src/css/custom.css"),
+        },
+        docs: {
+          remarkPlugins: [math],
+          rehypePlugins: [katex],
         },
       }),
     ],
@@ -63,7 +67,12 @@ const config = {
             type: "doc",
             docId: "intro",
             position: "left",
-            label: "Documentation",
+            label: "Learn More",
+          },
+          {
+            href: "https://github.com/nickthegroot/recipe-recommendation/raw/main/reports/report.pdf",
+            label: "Full Report",
+            position: "right",
           },
           {
             href: "https://github.com/nickthegroot/recipe-recommendation",
@@ -85,7 +94,20 @@ const config = {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
       },
+      mermaid: {
+        theme: { light: "neutral", dark: "forest" },
+      },
     }),
+
+  stylesheets: [
+    {
+      href: "https://cdn.jsdelivr.net/npm/katex@0.13.24/dist/katex.min.css",
+      type: "text/css",
+      integrity:
+        "sha384-odtC+0UGzzFL/6PNoE8rX/SPcQDXBJ+uRepguP4QkPCm2LBxH3FA3y+fKSiJ+AmM",
+      crossorigin: "anonymous",
+    },
+  ],
 };
 
 module.exports = config;
