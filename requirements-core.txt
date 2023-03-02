@@ -3,6 +3,7 @@
 
 # PyTorch Lightning
 pytorch-lightning[extra]==1.9.2
+torchmetrics==0.11.3
 
 # Misc
 pandas == 1.5.2
