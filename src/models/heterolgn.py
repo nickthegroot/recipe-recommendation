@@ -15,7 +15,7 @@ class HeteroLGN(pl.LightningModule):
         num_users: int,
         num_recipes: int,
         embedding_dim: int = 64,
-        num_layers: int = 10,
+        num_layers: int = 2,
         k: int = 10,
     ):
         super().__init__()
@@ -75,14 +75,16 @@ class HeteroLGN(pl.LightningModule):
     
     def _eval_step(self, x: HeteroData):
         usr_out, rec_out = self(x.id_dict, x.edge_index_dict)
+        usr_out = usr_out[x['user'].input_id]
 
         scores = usr_out @ rec_out.T
+        scores = scores[x['reviews'].edge_index[0]]
         indexes = torch.arange(scores.size(0))[:, None].expand_as(scores)
         target = to_torch_coo_tensor(
-            x["user", "reviews", "recipe"].edge_index,
+            x['reviews'].edge_index,
             size=(usr_out.size(0), rec_out.size(0))
             # Current limitations with metrics require dense version :(
-        ).to_dense()
+        )
 
         precision = self.ret_precision(
             preds=scores,

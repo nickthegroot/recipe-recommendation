@@ -3,7 +3,7 @@ from pathlib import Path
 import pytorch_lightning as pl
 import torch
 import torch_geometric.transforms as T
-from torch_geometric.loader import LinkNeighborLoader
+from torch_geometric.loader import NeighborLoader, LinkNeighborLoader
 
 from src import config as Config
 from src.data.get_data import get_data
@@ -36,6 +36,8 @@ class DataModule(pl.LightningDataModule):
         transform = T.RandomLinkSplit(
             num_val=0.1,
             num_test=0.1,
+            add_negative_train_samples=False,
+            neg_sampling_ratio=0,
             edge_types=("user", "reviews", "recipe"),
             rev_edge_types=("recipe", "rev_reviews", "user"),
         )
@@ -43,26 +45,23 @@ class DataModule(pl.LightningDataModule):
 
         self.num_users = self.train_data["user"].num_nodes
         self.num_recipes = self.train_data["recipe"].num_nodes
-        self.recipe_feats = self.train_data["recipe"].x.size(1)
+        # self.recipe_feats = self.train_data["recipe"].x.size(1)
 
     def train_dataloader(self):
-        edge_label_index = self.train_data["user", "reviews", "recipe"].edge_label_index
-
         # Possible improvement: use a temporal sampling strat to ensure later data doesn't affect earlier data
         return LinkNeighborLoader(
             self.train_data,
-            edge_label_index=(("user", "reviews", "recipe"), edge_label_index),
+            edge_label_index=(("user", "reviews", "recipe"), None),
             shuffle=True,
-            num_neighbors=[5, 3],
+            num_neighbors=[-1, -1] * 2,
             neg_sampling="triplet",
             batch_size=self.batch_size,
         )
 
     def val_dataloader(self):
-        edge_label_index = self.val_data["user", "reviews", "recipe"].edge_label_index
-        return LinkNeighborLoader(
+        return NeighborLoader(
             self.val_data,
-            edge_label_index=(("user", "reviews", "recipe"), edge_label_index),
-            num_neighbors=[5, 3],
+            input_nodes=('user', None),
+            num_neighbors=[-1, -1] * 2,
             batch_size=self.batch_size,
         )
