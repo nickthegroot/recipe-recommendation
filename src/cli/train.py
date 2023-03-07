@@ -16,9 +16,9 @@ class CustomCLI(LightningCLI):
         parser.link_arguments(
             "data.num_recipes", "model.init_args.num_recipes", apply_on="instantiate"
         )
-        parser.link_arguments(
-            "data.recipe_feats", "model.init_args.recipe_feats", apply_on="instantiate"
-        )
+        # parser.link_arguments(
+        #     "data.recipe_feats", "model.init_args.recipe_feats", apply_on="instantiate"
+        # )
 
 
 if __name__ == "__main__":
@@ -26,10 +26,7 @@ if __name__ == "__main__":
         datamodule_class=DataModule,
         trainer_defaults={
             "callbacks": [
-                EarlyStopping(monitor="val_loss", mode="min", patience=5),
-                ModelCheckpoint(
-                    monitor="val_loss", mode="min", save_top_k=1, save_weights_only=True
-                ),
+                EarlyStopping(monitor="val_recall", mode="max", patience=5),
             ]
         },
     )
