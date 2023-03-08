@@ -4,7 +4,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.data import HeteroData
 from torch_geometric.utils import to_torch_coo_tensor
-from torchmetrics import RetrievalPrecision, RetrievalRecall
 
 from src.models.conv import HeteroLGConv
 
@@ -23,14 +22,13 @@ class HeteroLGN(pl.LightningModule):
         self.k = k
 
         self.num_layers = num_layers
+        self.num_users = num_users
+        self.num_recipes = num_recipes
         self.usr_embedding = nn.Embedding(num_users, embedding_dim)
         self.rec_embedding = nn.Embedding(num_recipes, embedding_dim)
 
         self.alpha = 1 / (num_layers + 1)
         self.conv = HeteroLGConv()
-
-        self.ret_recall = RetrievalRecall(k=k)
-        self.ret_precision = RetrievalPrecision(k=k)
 
     def forward(
         self,
@@ -72,43 +70,39 @@ class HeteroLGN(pl.LightningModule):
         loss = self._loss(pos_x, neg_x)
         self.log("train_loss", loss, batch_size=x["user"].src_index.size(0))
         return loss
-    
-    def _eval_step(self, x: HeteroData):
-        usr_out, rec_out = self(x.id_dict, x.edge_index_dict)
-        usr_out = usr_out[x['user'].input_id]
-
-        scores = usr_out @ rec_out.T
-        scores = scores[x['reviews'].edge_index[0]]
-        indexes = torch.arange(scores.size(0))[:, None].expand_as(scores)
-        target = to_torch_coo_tensor(
-            x['reviews'].edge_index,
-            size=(usr_out.size(0), rec_out.size(0))
-            # Current limitations with metrics require dense version :(
-        )
-
-        precision = self.ret_precision(
-            preds=scores,
-            target=target,
-            indexes=indexes,
-        )
-
-        recall = self.ret_recall(
-            preds=scores,
-            target=target,
-            indexes=indexes,
-        )
-
-        return precision, recall
 
     def validation_step(self, x: HeteroData, batch_idx):
-        precision, recall = self._eval_step(x)
-        self.log(f"val_recall_{self.k}", recall)
-        self.log(f"val_precision_{self.k}", precision)
+        input_usr_idx = x["reviews"].edge_label_index[0]
+        batch_size = input_usr_idx.size(0)
+        target = to_torch_coo_tensor(
+            x["reviews"].edge_label_index, size=[self.num_users, self.num_recipes]
+        )
 
-    def test_step(self, x: HeteroData, batch_idx):
-        precision, recall = self._eval_step(x)
-        self.log(f"test_recall_{self.k}", recall, batch_size=x["user"].num_nodes)
-        self.log(f"test_precision_{self.k}", precision, batch_size=x["user"].num_nodes)
+        usr_out, rec_out = self(x.id_dict, x.edge_index_dict)
+        scores = usr_out[input_usr_idx] @ rec_out.T
+        recs = scores.topk(self.k, dim=-1).indices
+        recs = torch.sparse_coo_tensor(
+            indices=torch.vstack(
+                [
+                    input_usr_idx[:, None].expand_as(recs).flatten(),
+                    recs.flatten(),
+                ]
+            ),
+            values=torch.ones(recs.numel()),
+            size=[self.num_users, self.num_recipes],
+            device=recs.device,
+        )
+
+        retrieved_and_relevant = torch.sparse.sum(recs * target, dim=1).to_dense()[
+            input_usr_idx
+        ]
+        retrieved = torch.sparse.sum(recs, dim=1).to_dense()[input_usr_idx]
+        relevant = torch.sparse.sum(target, dim=1).to_dense()[input_usr_idx]
+
+        precision = retrieved_and_relevant / retrieved
+        recall = retrieved_and_relevant / relevant
+        self.log("val_precision", precision.mean(), batch_size=batch_size)
+        self.log("val_recall", recall.mean(), batch_size=batch_size)
 
     def configure_optimizers(self):
         return torch.optim.Adam(self.parameters(), lr=0.001)
