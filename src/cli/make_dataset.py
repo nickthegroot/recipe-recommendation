@@ -13,53 +13,45 @@ def make_dataset(
     output_path: Path,
 ):
     # Load & Clean
-    df_rec = pd.read_csv(input_path / 'recipes.csv', index_col='id')
+    df_rec = pd.read_csv(input_path / "RAW_recipes.csv", index_col="id")
     df_rec = clean_recipes(df_rec)
 
-    df_int = pd.read_csv(input_path / 'interactions.csv')
+    df_train_int = pd.read_csv(input_path / "interactions_train.csv")
+    df_train_int["is_train"] = True
+    df_val_int = pd.read_csv(input_path / "interactions_validation.csv")
+    df_val_int["is_val"] = True
+    df_test_int = pd.read_csv(input_path / "interactions_test.csv")
+    df_test_int["is_test"] = True
+    df_int = pd.concat([df_train_int, df_val_int, df_test_int], ignore_index=True)
     df_int = clean_interactions(df_int)
-
-    # Create Cleaned Interactions (for DB sync)
-    df_int.to_parquet(output_path / 'interactions.parquet')
+    df_int
 
     # Create Recipe Node List
-    df_rec.to_parquet(output_path / 'recipes.parquet', index=True)
+    df_rec.to_parquet(output_path / "recipe_nodes.parquet", index=True)
 
     # Create User Node List
-    df_users = df_int.user_id.drop_duplicates().to_frame()
-    df_users.to_parquet(output_path / 'users.parquet', index=False)
-
-    # Create Ingredient Node List
-    df_ingredients = df_rec.ingredients.explode().reset_index(drop=False)
-    df_ingredients.rename(
-        inplace=True,
-        columns={'id': 'recipe_id', 'ingredients': 'ingredient_id'}
-    )
-    (
-        df_ingredients[['ingredient_id']]
-        .drop_duplicates()
-        .to_parquet(output_path / 'ingredients.parquet', index=False)
-    )
-
-    # Create Ingredient Edge List
-    ingredient_edgelist = df_ingredients[['recipe_id', 'ingredient_id']]
-    ingredient_edgelist.to_parquet(
-        output_path / 'ingredient_edgelist.parquet', index=False)
+    df_users = df_int.user_id.drop_duplicates().to_frame().set_index("user_id")
+    df_users.to_parquet(output_path / "user_nodes.parquet", index=True)
 
     # Create Review Edge List
-    review_edgelist = df_int[['user_id', 'recipe_id', 'rating']]
-    review_edgelist.to_parquet(
-        output_path / 'review_edgelist.parquet', index=False)
+    review_edgelist = df_int[
+        ["user_id", "recipe_id", "rating", "is_train", "is_val", "is_test"]
+    ]
+    review_edgelist.to_parquet(output_path / "review_edges.parquet", index=False)
 
 
 @click.command()
-@click.argument('input_filepath', type=click.Path(exists=True), default=Config.RAW_DATA_DIR)
-@click.argument('output_filepath', type=click.Path(exists=True), default=Config.PROCESSED_DATA_DIR)
+@click.argument(
+    "input_filepath", type=click.Path(exists=True), default=Config.RAW_DATA_DIR
+)
+@click.argument(
+    "output_filepath", type=click.Path(exists=True), default=Config.PROCESSED_DATA_DIR
+)
 def main(input_filepath: str, output_filepath: str):
     input_path = Path(input_filepath)
     output_path = Path(output_filepath)
     make_dataset(input_path, output_path)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
