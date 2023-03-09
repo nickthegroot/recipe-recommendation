@@ -3,7 +3,6 @@ from datetime import datetime
 from pathlib import Path
 
 import click
-import pandas as pd
 import torch
 import torch.nn as nn
 from torch.utils.tensorboard import SummaryWriter
@@ -24,6 +23,7 @@ from src.models.reclcn import RecLGN
 @click.option("--k", default=10)
 @click.option("--lambda-val", default=1e-8)
 @click.option("--embed-dim", default=16)
+@click.option("--verbosity", default=100)
 @click.option("--model-dir", default=Config.MODEL_DIR)
 def main(**hp):
     now = datetime.now()
@@ -62,43 +62,21 @@ def main(**hp):
     val_data = dm.val_data
     pbar = trange(hp["iterations"])
 
-    tr_loss = []
-    val_precision = []
-    val_recall = []
+    max_precision = 0
+    for i in pbar:
+        loss = train_iter(model, optimizer, train_data)
+        writer.add_scalar("train_loss", loss, i)
 
-    try:
-        for i in pbar:
-            loss = train_iter(model, optimizer, train_data)
-            writer.add_scalar("train_loss", loss, i)
+        if (i + 1) % hp['verbosity'] == 0:
+            with torch.no_grad():
+                precision, recall = eval_step(hp["k"], dm, model, val_data)
 
-            if i % 20 == 0:
-                loss_val = loss.item()
-                pbar.set_postfix(loss=loss_val)
-                tr_loss.append(loss_val)
+                if max_precision < precision.item():
+                    max_precision = precision.item()
+                    torch.save(model.state_dict(), model_dir / "model.pt")
 
-            if (i + 1) % 100 == 0:
-                with torch.no_grad():
-                    precision, recall = eval_step(hp["k"], dm, model, val_data)
-
-                    if len(val_precision) == 0 or precision > max(val_precision):
-                        torch.save(model.state_dict(), model_dir / "model.pt")
-
-                    writer.add_scalar("val_precision", precision, i)
-                    writer.add_scalar("val_recall", recall, i)
-                    val_precision.append(precision)
-                    val_recall.append(recall)
-                    pbar.write(f"\n====== EPOCH {i+1}/{hp['iterations']} ======")
-                    pbar.write(f"precision@{hp['k']}: {precision}")
-                    pbar.write(f"recall@{hp['k']}: {recall}")
-    finally:
-        # Save all training metrics, even if cancelled
-        pd.Series(tr_loss).to_csv(model_dir / "tr_loss.csv", index=False)
-        pd.DataFrame(
-            {
-                "precision": val_precision,
-                "recall": val_recall,
-            }
-        ).to_csv(model_dir / "val_metrics.csv", index=False)
+                writer.add_scalar("val_precision", precision, i)
+                writer.add_scalar("val_recall", recall, i)
 
 
 def train_iter(model: nn.Module, optimizer, train_data: HeteroData):
