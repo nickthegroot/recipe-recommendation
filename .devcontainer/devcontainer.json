@@ -4,12 +4,18 @@
   "name": "Recipe-Recommendation",
   "build": {
     "context": "..",
-    "dockerfile": "../Dockerfile"
+    "dockerfile": "../Dockerfile-gpu",
   },
+  "runArgs": ["--gpus", "all"],
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": {},
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
     "ghcr.io/meaningful-ooo/devcontainer-features/fish:1": {},
+    "ghcr.io/devcontainers/features/nvidia-cuda:1": {
+        "installCudnn": true,
+        "cudaVersion": "11.7",
+        "cudnnVersion": "8.5.0.96"
+    },
     "./features/shell": {}
   }
 }
