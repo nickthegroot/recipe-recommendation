@@ -24,6 +24,18 @@ from src.models.reclcn import RecLGN
 @click.option("--lambda-val", default=1e-8)
 @click.option("--embed-dim", default=16)
 @click.option("--verbosity", default=100)
+@click.option(
+    "--use-weights",
+    type=bool,
+    default=False,
+    help="Use edge weights (Only used in RecLCN model)",
+)
+@click.option(
+    "--use-recipe-data",
+    type=bool,
+    default=False,
+    help="Use recipe data (Only used in RecLCN model)",
+)
 @click.option("--model-dir", default=Config.MODEL_DIR)
 def main(**hp):
     now = datetime.now()
@@ -35,22 +47,24 @@ def main(**hp):
         json.dump(hp, f)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dm = DataModule(device)
+    dm = DataModule(device, norm_rating=True)
 
     if hp["model"] == "HeteroLGN":
         model = HeteroLGN(
-            dm.num_users,
-            dm.num_recipes,
-            hp["lambda_val"],
-            hp["embed_dim"],
+            num_users=dm.num_users,
+            num_recipes=dm.num_recipes,
+            lambda_val=hp["lambda_val"],
+            embedding_dim=hp["embed_dim"],
         )
     elif hp["model"] == "RecLGN":
         model = RecLGN(
-            dm.num_users,
-            dm.num_recipes,
-            dm.recipe_dim,
-            hp["lambda_val"],
-            hp["embed_dim"],
+            num_users=dm.num_users,
+            num_recipes=dm.num_recipes,
+            recipe_dim=dm.recipe_dim,
+            lambda_val=hp["lambda_val"],
+            embedding_dim=hp["embed_dim"],
+            use_weights=hp["use_weights"],
+            use_recipe_data=hp["use_recipe_data"],
         )
     else:
         raise Exception("Invalid model: expected HeteroLGN | RecLGN")
@@ -67,12 +81,12 @@ def main(**hp):
         loss = train_iter(model, optimizer, train_data)
         writer.add_scalar("train_loss", loss, i)
 
-        if (i + 1) % hp['verbosity'] == 0:
+        if (i + 1) % hp["verbosity"] == 0:
             with torch.no_grad():
                 precision, recall = eval_step(hp["k"], dm, model, val_data)
 
-                if max_precision < precision.item():
-                    max_precision = precision.item()
+                if max_precision < precision:
+                    max_precision = precision
                     torch.save(model.state_dict(), model_dir / "model.pt")
 
                 writer.add_scalar("val_precision", precision, i)

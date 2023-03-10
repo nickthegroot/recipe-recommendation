@@ -9,6 +9,8 @@ matplotlib
 tensorboard
 pytigergraph[gds]
 python-dotenv
+scikit-learn
+scikit-surprise
 
 # Development
 click

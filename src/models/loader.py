@@ -159,9 +159,9 @@ class DataModule(object):
 
         data = HeteroData()
 
-        data["user"].id = torch.tensor(list(user_map.keys()))
+        # Users have no attributes
+        data["user"].num_nodes = self.num_users
         data["recipe"].x = recipe_x
-        data["recipe"].id = torch.tensor(list(recipe_map.keys()))
 
         train_data, val_data, test_data = copy(data), copy(data), copy(data)
         train_mask = extra_edge_attr["is_train"]
@@ -177,46 +177,49 @@ class DataModule(object):
         test_data["user", "reviews", "recipe"].edge_attr = edge_label[test_mask]
 
         if norm_rating:
-            train_review_users = edge_index[0, train_mask]
-            val_review_users = edge_index[0, val_mask]
-            test_review_users = edge_index[0, test_mask]
+            train_data["user", "reviews", "recipe"].edge_attr /= 5
+            val_data["user", "reviews", "recipe"].edge_attr /= 5
+            test_data["user", "reviews", "recipe"].edge_attr /= 5
+            # train_review_users = edge_index[0, train_mask]
+            # val_review_users = edge_index[0, val_mask]
+            # test_review_users = edge_index[0, test_mask]
 
-            # Calc user averages (on train set)
-            train_review_rating = edge_label[train_mask]
-            train_user_num_reviews = degree(train_review_users)
-            train_usr_avg = (
-                scatter_add(train_review_rating, train_review_users)
-                / train_user_num_reviews
-            )
-            train_usr_std = (
-                scatter_add(
-                    (train_review_rating - train_usr_avg[train_review_users]).pow(2),
-                    train_review_users,
-                )
-                / (train_user_num_reviews - 1)
-            ).sqrt()
+            # # Calc user averages (on train set)
+            # train_review_rating = edge_label[train_mask]
+            # train_user_num_reviews = degree(train_review_users)
+            # train_usr_avg = (
+            #     scatter_add(train_review_rating, train_review_users)
+            #     / train_user_num_reviews
+            # )
+            # train_usr_std = (
+            #     scatter_add(
+            #         (train_review_rating - train_usr_avg[train_review_users]).pow(2),
+            #         train_review_users,
+            #     )
+            #     / (train_user_num_reviews - 1)
+            # ).sqrt()
 
-            # Z = (x - mean) / std
-            train_review_score = train_data["user", "reviews", "recipe"].edge_attr
-            train_review_score -= train_usr_avg[train_review_users]
-            train_review_score /= train_usr_std[train_review_users]
-            train_review_score.nan_to_num_(0)
-            train_review_score += 1
-            train_review_score = train_review_score.clamp(-1, 2)
+            # # Z = (x - mean) / std
+            # train_review_score = train_data["user", "reviews", "recipe"].edge_attr
+            # train_review_score -= train_usr_avg[train_review_users]
+            # train_review_score /= train_usr_std[train_review_users]
+            # train_review_score.nan_to_num_(0)
+            # train_review_score += 1
+            # train_review_score = train_review_score.clamp(-1, 2)
 
-            val_review_score = val_data["user", "reviews", "recipe"].edge_attr
-            val_review_score -= train_usr_avg[val_review_users]
-            val_review_score /= train_usr_std[val_review_users]
-            val_review_score.nan_to_num_(0)
-            val_review_score += 1
-            val_review_score = val_review_score.clamp(-1, 2)
+            # val_review_score = val_data["user", "reviews", "recipe"].edge_attr
+            # val_review_score -= train_usr_avg[val_review_users]
+            # val_review_score /= train_usr_std[val_review_users]
+            # val_review_score.nan_to_num_(0)
+            # val_review_score += 1
+            # val_review_score = val_review_score.clamp(-1, 2)
 
-            test_review_score = test_data["user", "reviews", "recipe"].edge_attr
-            test_review_score -= train_usr_avg[test_review_users]
-            test_review_score /= train_usr_std[test_review_users]
-            test_review_score.nan_to_num_(0)
-            test_review_score += 1
-            test_review_score = test_review_score.clamp(-1, 2)
+            # test_review_score = test_data["user", "reviews", "recipe"].edge_attr
+            # test_review_score -= train_usr_avg[test_review_users]
+            # test_review_score /= train_usr_std[test_review_users]
+            # test_review_score.nan_to_num_(0)
+            # test_review_score += 1
+            # test_review_score = test_review_score.clamp(-1, 2)
 
         transform = T.ToUndirected()
         self.train_data, self.val_data, self.test_data = (
