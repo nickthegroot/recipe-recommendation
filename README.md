@@ -34,13 +34,13 @@ The easiest way to get started with `devcontainers` is through [GitHub Codespace
 
 1. Download the data by creating an Kaggle account and downloading the [`shuyangli94/food-com-recipes-and-user-interactions`](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions) dataset.
 2. Unzip the data into `data/raw`.
-   - You should see two files: `data/raw/interactions.csv` and `data/raw/recipes.csv`
+   - You should see a number of files, including `data/raw/interactions_train.csv` and `data/raw/RAW_recipes.csv`
 3. Run `make data` to clean the data into its cleaned form.
 
 ## Running
 
 All models can be trained using `python src/cli/train.py`.
 
-- Run `python src/cli/train.py --help` for all configuration options (there's a lot!)
-- In general, all models can be trained via `python src/cli/train.py fit`
-  - For example, `HeteroLCN` is trained with `python src/cli/train.py fit --model HeteroLGN`
+- Run `python src/cli/train.py --help` for all configuration options
+- In general, all models can be trained via `python src/cli/train.py --model {model}`
+  - For example, `HeteroLGN` is trained with `python src/cli/train.py --model HeteroLGN`
