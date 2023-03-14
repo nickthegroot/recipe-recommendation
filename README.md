@@ -30,11 +30,24 @@ The easiest way to get started with `devcontainers` is through [GitHub Codespace
 3. Start the codespace and connect. It might take a minute to install all the dependencies. Grab a :coffee:!
 4. Connect to the codespace through your preferred method (browser / VS Code).
 
+## Testing (DSMLP)
+
+The (auto!) published Docker image contains everything you need to test the project. Under the hood, it's running the same container that any `devcontainer` is.
+
+In DSMLP: log in with your credentials, then run the following:
+
+```
+cd /app
+make test
+```
+
+This will begin a full run of every test in the project. Currently, this includes a full pipeline test and a smaller data processing test.
+
 ## Downloading/Preparing the Data
 
 1. Download the data by creating an Kaggle account and downloading the [`shuyangli94/food-com-recipes-and-user-interactions`](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions) dataset.
 2. Unzip the data into `data/raw`.
-   - You should see a number of files, including `data/raw/interactions_train.csv` and `data/raw/RAW_recipes.csv`
+   - You should see a number of files, including `data/raw/RAW_interactions.csv` and `data/raw/RAW_recipes.csv`
 3. Run `make data` to clean the data into its cleaned form.
 
 ## Running
