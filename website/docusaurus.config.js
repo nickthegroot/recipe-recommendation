@@ -56,6 +56,10 @@ const config = {
     ({
       // Replace with your project's social card
       image: "img/docusaurus-social-card.jpg",
+      colorMode: {
+        defaultMode: "light",
+        disableSwitch: true,
+      },
       navbar: {
         title: "Recipe Recommendation",
         logo: {
@@ -67,7 +71,7 @@ const config = {
             type: "doc",
             docId: "intro",
             position: "left",
-            label: "Learn More",
+            label: "Project",
           },
           {
             href: "https://github.com/nickthegroot/recipe-recommendation/raw/main/reports/report.pdf",

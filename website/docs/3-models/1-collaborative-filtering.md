@@ -1,35 +1,26 @@
 # Collaborative Filtering
 
+Our first attempt at recommending recipes to users was to use a K-Means collaborative filtering model. K-Means collaborative filtering is a classical algorithm that recommends items to users under the assumption that users with similar tastes will like similar items.
+
 ## How It Works
 
-For any given user $u$:
+The model works by first computing a similarity score between users. We chose to use the pearson correlation coefficient as our similarity metric, due to its ability to handle non-centered ratings (such as the 1-5 ratings we used). The model then predicts a score for each user-recipe interaction based on a weighted average of the ratings of users.
 
-1. Find all recipes $r$ that $u$ has interacted with.
-1. Find all users $O$ that have interacted with the same recipes as $u$ ($r$).
-1. Calculate the average rating for each user in $O$ ($\bar{R}_o$)
-1. Calculate the similarity score for each user in $O$ using pearson correlation, where $I_u$ is the set of recipes that $u$ has interacted with:
-   $$
-          Sim(u, o) = \frac
-          {
-            \sum_{i \in I_u \cup I_o} (R_{u,i} - \bar{R_u})(R_{o,i} - \bar{R_o})
-          }{
-            \sqrt{
-              \sum_{i \in I_u \cup I_o} (R_{u,i} - \bar{R_u})^2
-              \sum_{i \in I_u \cup I_o} (R_{o,i} - \bar{R_o})^2
-            }
-          }
-   $$
-1. Calculate the rank of each recipe $r$ using the following formula, where $U_r$ is the set of users that have interacted with recipe $r$:
-   $$
-   Rank(r) = \sum_{o \in U_r} Sim(u, o) \cdot (R_{o, r} - \bar{R_o} + 1)
-   $$
+$$
+  \text{Recipe Score}(u, r)
+  = \mu_{u} + \frac{
+    \sum_{u'} \text{Similarity}(u, u')
+    \cdot (\text{Rating}(u', r) - \mu_{u'})
+  }{
+    \sum_{u'} \text{Similarity}(u, u')
+  }
+$$
 
-While such a model isn't exclusive to graph-based networks, using one does allow the model to perform more efficiently in finding the relevant users/items.
+Recommendations are then as simple as sorting the recipes by their predicted score and choosing the top $k$.
 
-It's important to note that while most recommendation systems filter out recipes that users have already interacted with, we decided to keep them in the model. This is because we wanted to be able to recommend recipes that users have already interacted with, but may have not tried in awhile. This is particularly important to note when considering the results of our user research, which suggested that users generally prefer to cook recipes they've already cooked before.
+We implemented the algorithm in two ways for this project.
 
-## Results
+- `surprise`: An open-source Python library that implements a variety of recommendation algorithms. Their implementation of Centered K-NN closely mirrors the algorithm described above, thus making it an easy choice for our first model.
+- `GSQL`: We also implemented the model inside TigerGraph using GSQL. This allowed us to run recommendations _directly inside the database_, allowing for lightning fast recommendations suitable for real-time applications.
 
-:::info
-WIP: TODO
-:::
+One important distinction between our implementations and many others is that we did not filter out recipes that users have already interacted with. We decided to do this because we wanted to be able to recommend recipes that users have already interacted with, but may have not tried in awhile. This is particularly important to note when considering the results of our prior user research, which suggested that users generally prefer to cook recipes they've already cooked before.
