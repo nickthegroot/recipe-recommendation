@@ -16,29 +16,7 @@ from src.models.loader import DataModule
 from src.models.recgcn import RecGCN
 
 
-@click.command
-@click.option("--model", type=str)
-@click.option("--max-epochs", default=2_000)
-@click.option("--patience", default=2)
-@click.option("--lr", default=1e-3)
-@click.option("--k", default=20)
-@click.option("--lambda-val", default=0.0)
-@click.option("--embed-dim", default=16)
-@click.option("--verbosity", default=25)
-@click.option(
-    "--use-weights",
-    type=bool,
-    default=False,
-    help="Use edge weights (Only used in RecLCN model)",
-)
-@click.option(
-    "--use-recipe-data",
-    type=bool,
-    default=False,
-    help="Use recipe data (Only used in RecLCN model)",
-)
-@click.option("--model-dir", default=Config.MODEL_DIR)
-def main(**hp):
+def train(hp: object):
     now = datetime.now()
     model_dir = Path(hp["model_dir"]) / now.strftime("%y%m%d-%H%M%S")
     model_dir.mkdir(exist_ok=True)
@@ -48,7 +26,7 @@ def main(**hp):
         json.dump(hp, f)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dm = DataModule(device)
+    dm = DataModule(device, hp["data_dir"])
 
     if hp["model"] == "LightGCN":
         model = LightGCN(
@@ -143,7 +121,7 @@ def eval_step(
     num_val_users = val_users.size(0)
 
     recs = []
-    batch_cutoffs = list(range(0, num_val_users, num_val_users // 20))
+    batch_cutoffs = list(range(0, num_val_users, max(num_val_users // 20, 1)))
     batch_cutoffs.append(num_val_users)
     # Need to do this in batches, otherwise we run out of memory
     for start, end in zip(batch_cutoffs, batch_cutoffs[1:]):
@@ -178,6 +156,33 @@ def eval_step(
     recall = (retrieved_and_relevant / relevant).mean().item()
 
     return precision, recall
+
+
+@click.command
+@click.option("--data-dir", default=Config.PROCESSED_DATA_DIR)
+@click.option("--model", type=str)
+@click.option("--max-epochs", default=2_000)
+@click.option("--patience", default=2)
+@click.option("--lr", default=1e-3)
+@click.option("--k", default=20)
+@click.option("--lambda-val", default=1e-7)
+@click.option("--embed-dim", default=16)
+@click.option("--verbosity", default=25)
+@click.option(
+    "--use-weights",
+    type=bool,
+    default=False,
+    help="Use edge weights (Only used in RecLCN model)",
+)
+@click.option(
+    "--use-recipe-data",
+    type=bool,
+    default=False,
+    help="Use recipe data (Only used in RecLCN model)",
+)
+@click.option("--model-dir", default=Config.MODEL_DIR)
+def main(**hp):
+    train(hp)
 
 
 if __name__ == "__main__":
