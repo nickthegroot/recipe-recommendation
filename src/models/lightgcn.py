@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from src.models.conv import HeteroLGConv
 
 
-class HeteroLGN(nn.Module):
+class LightGCN(nn.Module):
     def __init__(
         self,
         num_users: int,
@@ -70,4 +70,5 @@ class HeteroLGN(nn.Module):
             + self.rcp_embedding(pos_rcp_idx).norm(2).pow(2)
             + self.rcp_embedding(neg_rcp_idx).norm(2).pow(2)
         )
+
         return -log_prob + reg_loss

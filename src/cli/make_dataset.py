@@ -1,7 +1,9 @@
 from pathlib import Path
 
 import click
+import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 from src import config as Config
 from src.data.clean_interactions import clean_interactions
@@ -16,15 +18,11 @@ def make_dataset(
     df_rec = pd.read_csv(input_path / "RAW_recipes.csv", index_col="id")
     df_rec = clean_recipes(df_rec)
 
-    df_train_int = pd.read_csv(input_path / "interactions_train.csv")
-    df_train_int["is_train"] = True
-    df_val_int = pd.read_csv(input_path / "interactions_validation.csv")
-    df_val_int["is_val"] = True
-    df_test_int = pd.read_csv(input_path / "interactions_test.csv")
-    df_test_int["is_test"] = True
-    df_int = pd.concat([df_train_int, df_val_int, df_test_int], ignore_index=True)
+    df_int = pd.read_csv(input_path / "RAW_interactions.csv")
     df_int = clean_interactions(df_int)
-    df_int
+
+    train_int, test_int = train_test_split(df_int, test_size=0.3, random_state=42)
+    val_int, test_int = train_test_split(test_int, test_size=0.5, random_state=42)
 
     # Create Recipe Node List
     df_rec.to_parquet(output_path / "recipe_nodes.parquet", index=True)
@@ -34,10 +32,9 @@ def make_dataset(
     df_users.to_parquet(output_path / "user_nodes.parquet", index=True)
 
     # Create Review Edge List
-    review_edgelist = df_int[
-        ["user_id", "recipe_id", "rating", "is_train", "is_val", "is_test"]
-    ]
-    review_edgelist.to_parquet(output_path / "review_edges.parquet", index=False)
+    train_int.to_parquet(output_path / "train_review_edges.parquet", index=False)
+    val_int.to_parquet(output_path / "val_review_edges.parquet", index=False)
+    test_int.to_parquet(output_path / "test_review_edges.parquet", index=False)
 
 
 @click.command()

@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from src.models.conv import HeteroLGConv
 
 
-class RecLGN(nn.Module):
+class RecGCN(nn.Module):
     """
     A modified version of HeteroLGN for the recipe use-case.
 
