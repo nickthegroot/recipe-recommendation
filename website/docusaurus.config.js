@@ -51,6 +51,32 @@ const config = {
     ],
   ],
 
+  plugins: [
+    [
+      "content-docs",
+      /** @type {import('@docusaurus/plugin-content-docs').Options} */
+      ({
+        id: "ux",
+        path: "ux",
+        routeBasePath: "ux",
+
+        remarkPlugins: [math],
+        rehypePlugins: [katex],
+        // editUrl: ({locale, versionDocsDirPath, docPath}) => {
+        //   if (locale !== defaultLocale) {
+        //     return `https://crowdin.com/project/docusaurus-v2/${locale}`;
+        //   }
+        //   return `https://github.com/facebook/docusaurus/edit/main/website/${versionDocsDirPath}/${docPath}`;
+        // },
+        // remarkPlugins: [npm2yarn],
+        // editCurrentVersion: true,
+        // sidebarPath: require.resolve('./sidebarsCommunity.js'),
+        // showLastUpdateAuthor: true,
+        // showLastUpdateTime: true,
+      }),
+    ],
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
@@ -74,8 +100,13 @@ const config = {
             label: "Project",
           },
           {
-            href: "https://github.com/nickthegroot/recipe-recommendation/raw/main/reports/report.pdf",
-            label: "Full Report",
+            to: "ux",
+            position: "left",
+            label: "UI/UX",
+          },
+          {
+            href: "https://docs.google.com/viewer?url=https://github.com/nickthegroot/recipe-recommendation/raw/main/reports/report.pdf",
+            label: "Technical Paper",
             position: "right",
           },
           {
@@ -89,8 +120,30 @@ const config = {
         style: "dark",
         links: [
           {
-            label: "Icons from Icon8",
-            href: "https://icons8.com",
+            title: "Author",
+            items: [
+              {
+                label: "Nick DeGroot",
+                href: "https://nickthegroot.com",
+              },
+            ],
+          },
+          {
+            title: "Credits",
+            items: [
+              {
+                label: "Technical Mentorship from TigerGraph",
+                href: "https://www.tigergraph.com/",
+              },
+              {
+                label: "Design Mentorship from Deyshna Pai",
+                href: "https://www.deyshnapai.com/",
+              },
+              {
+                label: "Icons from Icon8",
+                href: "https://icons8.com",
+              },
+            ],
           },
         ],
       },

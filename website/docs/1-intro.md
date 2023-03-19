@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # A History
 
 Existing services generally fall within one of two categories:
