@@ -23,8 +23,16 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro"
+            style={{ margin: 10 }}
           >
             🔗 Learn About The Project
+          </Link>
+          <Link
+            className="button button--secondary button--lg"
+            to="/ux"
+            style={{ margin: 10 }}
+          >
+            🔗 Learn About The Design
           </Link>
         </div>
       </div>
@@ -48,8 +56,8 @@ export default function Home(): JSX.Element {
           <p style={{ width: "75%", textAlign: "center" }}>
             What's needed is a way to find new recipes that you'll actually
             enjoy, personalized to the things you already have on hand. To this
-            end, we present the first step in making this dream a reality:{" "}
-            <b>the recipe recommendation engine</b>.
+            end, we present the first steps in making this dream a reality: the{" "}
+            <b>recipe recommendation engine</b> and the <b>user experience</b>.
           </p>
         </HomescreenContainer>
       </main>

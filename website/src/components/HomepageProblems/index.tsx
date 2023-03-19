@@ -67,6 +67,15 @@ export default function HomepageProblems(): JSX.Element {
             <Problem key={idx} {...props} />
           ))}
         </div>
+        <div className="text--center">
+          In essence,{" "}
+          <i>
+            <b>
+              busy adults need a way to find tasty yet healthy recipes that
+              outweigh the convenience and simplicity of ordering out.
+            </b>
+          </i>
+        </div>
       </div>
     </section>
   );
