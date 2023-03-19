@@ -30,13 +30,24 @@ The easiest way to get started with `devcontainers` is through [GitHub Codespace
 3. Start the codespace and connect. It might take a minute to install all the dependencies. Grab a :coffee:!
 4. Connect to the codespace through your preferred method (browser / VS Code).
 
-## Testing (DSMLP)
+## Testing
+
+This project is setup with an array of tests using `pytest` to ensure things are working. With a working environment, run the following command.
+
+```
+make test
+```
+
+### Testing on DSLMP
+
+For UCSD students & staff, we've ensured that everything works on the Data Science Machine Learning Platform servers.
 
 The (auto!) published Docker image contains everything you need to test the project. Under the hood, it's running the same container that any `devcontainer` is.
 
 In DSMLP: log in with your credentials, then run the following:
 
 ```
+launch.sh -s -i ghcr.io/nickthegroot/recipe-recommendation:main
 cd /app
 make test
 ```
