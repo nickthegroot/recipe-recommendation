@@ -8,7 +8,7 @@ sidebar_position: 0
 
 ## Problem Statement
 
-Help busy adults find tasty yet healthy recipes that outweighs the convince and simplicity of ordering out.
+Help busy adults find tasty yet healthy recipes that outweigh the convenience and simplicity of ordering out.
 
 ## Tools
 
