@@ -2,7 +2,11 @@ name: Publish Docker Image
 
 on:
   push:
-    branches: ['main']
+    branches: ["main"]
+    paths:
+      - src/**
+      - Dockerfile*
+      - requirements.txt
 
 env:
   REGISTRY: ghcr.io
